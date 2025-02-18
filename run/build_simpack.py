@@ -40,6 +40,8 @@ if __name__=='__main__':
       help='CRAB setting: total number of events to generate (default: leave unmodified wrt template)')
     parser.add_argument('-s', '--site', default=None,
       help='CRAB setting: storage site (default: leave unmodified wrt template)')
+    parser.add_argument('--patch_fragment', default=False, action='store_true',
+      help='Patch the fragment to point to the correct gridpack [experimental, use with caution].')
     args = parser.parse_args()
     print('Running build_simpack.py with following configuration:')
     for arg in vars(args): print('  - {}: {}'.format(arg, getattr(args,arg)))
@@ -139,7 +141,8 @@ if __name__=='__main__':
 
     # patch the generator fragment
     # note: this is needed to make the fragment point to the correct gridpack!
-    fragment = newfragment
-    print('Patching the generator fagment...')
-    patch_fragment(fragment)
-    print('Done.')
+    if args.patch_fragment:
+        fragment = newfragment
+        print('Patching the generator fagment...')
+        patch_fragment(fragment)
+        print('Done.')
