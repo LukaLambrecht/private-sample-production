@@ -63,7 +63,9 @@ if __name__=='__main__':
         print('Limiting number of {}s to {}.'.format(args.level, args.number))
 
     # define log file for writing progress
-    logfile = 'log_' + os.path.splitext(os.path.basename(args.outputfile))[0] + '.txt'
+    logfile = None
+    if args.outputfile is not None:
+        logfile = 'log_' + os.path.splitext(os.path.basename(args.outputfile))[0] + '.txt'
 
     # loop over files
     files_to_sites = {}
@@ -74,7 +76,8 @@ if __name__=='__main__':
         if fileidx < 10 or (fileidx+1) % step == 0:
             msg = 'Finding sites for {} {}/{}...'.format(args.level, fileidx+1, len(files))
             print(msg, end='\r')
-            with open(logfile,'a') as f: f.write(msg + '\n')
+            if logfile is not None:
+                with open(logfile,'a') as f: f.write(msg + '\n')
 
         # find sites for file
         dasquery = 'site {}={}'.format(args.level, file)
@@ -116,7 +119,8 @@ if __name__=='__main__':
             if blockidx < 10 or (blockidx+1) % step == 0:
                 msg = 'Finding files in block {}/{}...'.format(blockidx+1, len(blocks_on_disk))
                 print(msg, end='\r')
-                with open(logfile,'a') as f: f.write(msg + '\n')
+                if logfile is not None:
+                    with open(logfile,'a') as f: f.write(msg + '\n')
 
             # find files in block
             dasquery = 'file block={}'.format(block)
@@ -139,4 +143,4 @@ if __name__=='__main__':
         print('Output written to {}'.format(args.outputfile))
 
     # delete temporary log file
-    if os.path.exists(logfile): os.system('rm {}'.format(logfile))
+    if logfile is not None and os.path.exists(logfile): os.system('rm {}'.format(logfile))
