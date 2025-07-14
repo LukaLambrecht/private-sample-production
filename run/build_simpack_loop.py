@@ -13,7 +13,7 @@ if __name__=='__main__':
 
     # read command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath,
+    parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath, nargs='+',
       help='Path to input file, containing gridpacks, genfragments and conditions')
     parser.add_argument('--container', default=None,
       help='Container to use (default: None)')
@@ -31,6 +31,21 @@ if __name__=='__main__':
     args = parser.parse_args()
     print('Running build_simpack_loop.py with following configuration:')
     for arg in vars(args): print('  - {}: {}'.format(arg, getattr(args,arg)))
+
+    # handle case where input is a list of already built simpacks (just submit them)
+    if len(args.inputfile) > 1:
+        simpacks = args.inputfile[:]
+        msg = 'Submit {} simpacks? (y/n)'.format(len(simpacks))
+        print(msg)
+        go = six.moves.input()
+        if go != 'y': sys.exit()
+        for simpack in simpacks:
+            cmd = 'cd {}; ./crab_submit.sh'.format(simpack)
+            os.system(cmd)
+        sys.exit()
+
+    # all other cases: input is a single file
+    args.inputfile = args.inputfile[0]
 
     # handle case where simpacks were already built, now just submit
     if os.path.isdir(args.inputfile):
