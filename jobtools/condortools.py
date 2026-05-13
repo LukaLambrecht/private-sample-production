@@ -43,24 +43,32 @@ def initJobScript(name,
     fname = name+'.sh'
     if os.path.exists(fname): os.system('rm {}'.format(fname))
     cwd = os.path.abspath(os.getcwd())
+    
     # parse home
     if home=='auto': home = os.environ['HOME']
+    
+    # check cmssw version
+    if cmssw_version is not None:
+        cmssw_dir = os.path.join(cmssw_version, 'src')
+        if not os.path.exists(cmssw_dir):
+            raise Exception(f'CMSSW src directory {cmssw_dir} does not exist.')
+
     # write script
     with open(fname,'w') as script:
-	# write bash shebang
+	    # write bash shebang
         script.write('#!/bin/bash\n')
-	# write echo script name
+	    # write echo script name
         script.write("echo '###exename###: {}'\n".format(fname))
-	# write export home
+	    # write export home
         if home is not None:
             script.write('export HOME={}\n'.format(home))
-	# write sourcing of common software
+  	    # write sourcing of common software
         script.write('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-	# write setting correct cmssw release
+	    # write setting correct cmssw release
         if cmssw_version is not None:
-            script.write('cd {}\n'.format( os.path.join( cmssw_version,'src' ) ) )
+            script.write('cd {}\n'.format(cmssw_dir) )
             script.write('eval `scram runtime -sh`\n')
-	# write export proxy
+	    # write export proxy
         if proxy is not None:
             script.write('export X509_USER_PROXY={}\n'.format( proxy ))
         script.write('cd {}\n'.format( cwd ) )
